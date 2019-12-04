@@ -3,13 +3,13 @@ import select
 import errno
 import sys
 
-HEADER_LENGTH = 10
+HEADER_LENGTH = 20
 
 IP = "127.0.0.1"
 PORT = 3333
 my_username = "Processo 1"
 
-sysOut = 0
+sysOut = '0'
 # Create a socket
 # socket.AF_INET - address family, IPv4, some otehr possible are AF_INET6, AF_BLUETOOTH, AF_UNIX
 # socket.SOCK_STREAM - TCP, conection-based, socket.SOCK_DGRAM - UDP, connectionless, datagrams, socket.SOCK_RAW - raw IP packets
@@ -28,21 +28,21 @@ username_header = f"{len(username):<{HEADER_LENGTH}}".encode('utf-8')
 client_socket.send(username_header + username)
 
 while True:
-
-    # Wait for user to input a message
-    setP = input(f'{my_username} > ')
-    set_point = int(setP)
-
-    # If message is not empty - send it
+    setP = int(input(f'{my_username} > '))
+    set_point = setP
+    
     if set_point:
-        # Encode message to bytes, prepare header and convert to bytes, like for username above, then send
-        
-        process_erro = set_point - sysOut
-        
-         #set_point = set_point.encode('utf-8')
-        message_header = f"{process_erro:<{HEADER_LENGTH}}".encode('utf-8')
+        PLUS = setP - int(sysOut)
+        process_erro = str(PLUS)
+        message_header = f"{len(process_erro):<{HEADER_LENGTH}}".encode('utf-8')
          
-        client_socket.send(b'process_erro')
+        client_socket.send(username_header + process_erro.encode('utf-8'))
+#        PLUS = int(setP) - int(sysOut)
+#        process_erro = str(PLUS)
+#        process_erro = process_erro.encode('utf-8')
+#        message_header = f"{len(process_erro):<{HEADER_LENGTH}}".encode('utf-8')
+#         
+#        client_socket.send(username_header + process_erro)
 
     try:
         # Now we want to loop over received messages (there might be more than one) and print them

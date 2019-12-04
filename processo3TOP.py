@@ -12,15 +12,15 @@ theta = 0.0 # tempo morto
 du = 1.0    # variacao de u
 
 #funcao de transferencia
-num = [Kp]
+#num = [Kp]
 den = [tau**2,2*zeta*tau,1]
-sys1 = signal.TransferFunction(num,den)
+#sys1 = signal.TransferFunction(num,den)
 
-out0 = 1
 in0 = 0
+out0 = 2
 
 #interface Client do processo 3
-HEADER = 10
+HEADER = 20
 IP = "127.0.0.1"
 PORT3 = 5555
 
@@ -34,15 +34,23 @@ username = my_username.encode('utf-8')
 username_header = f"{len(username):<{HEADER}}".encode('utf-8')
 c.send(username_header + username)
 
+print(f'{my_username} > ')
 
 while True:
-    if in0 > 0:
+    
+      # Wait for user to input a message
+   # print(f'{my_username} > ')
+    setP = in0
 
+    # If message is not empty - send it
+    if setP == 10:
+        PLUS = out0 - setP
+        check = str(PLUS)
         # Encode message to bytes, prepare header and convert to bytes, like for username above, then send
-        out0 = in0 * sys1
-        #message = message.encode('utf-8')
-        message_header = f"{len(out0):<{HEADER}}".encode('utf-8')
-        c.send(message_header + out0)
+        message_header = f"{len(check):<{HEADER}}".encode('utf-8')
+        
+        c.send(message_header + check.encode('utf-8'))
+        
     try:
         
       while True:
@@ -61,7 +69,7 @@ while True:
         message_length = int(message_header.decode('utf-8').strip())
         in0 = c.recv(message_length).decode('utf-8')
         
-        print(f'{username} > {out0}')
+        print(f'{username} > {in0}')
         
     except IOError as e:
         # This is normal on non blocking connections - when there are no incoming data, error is going to be raised

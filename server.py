@@ -1,7 +1,7 @@
 import socket
 import select
 
-HEADER_LENGTH = 10
+HEADER_LENGTH = 20
 
 IP = "127.0.0.1"
 PORT1 = 3333
@@ -175,17 +175,6 @@ while True:
 
             # Get user by notified socket, so we will know who sent the message
             user = clients[notified_socket]
-            
-            #if user["data"].decode("utf-8") == "Processo 1":
-             #   oi = "vai para o processo 2"
-                
-            #if user["data"].decode("utf-8") == "Processo 2":
-            #    oi = "vai para o processo 3"
-                
-            #if user["data"].decode("utf-8") == "Processo 3":
-             #   oi = "vai para o processo 1"
-            
-            #server_socket1.sendto(b'1', ("127.0.0.1",3333))
             
             print(f'Received message from {user["data"].decode("utf-8")}: {message["data"].decode("utf-8")}')
 
