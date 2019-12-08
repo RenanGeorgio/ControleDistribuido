@@ -1,90 +1,85 @@
 import socket
-import select
 import errno
 import sys
+import matplotlib.pyplot as plt
+import numpy as np
 
 HEADER_LENGTH = 20
 
 IP = "127.0.0.1"
-PORT = 3333
+PORT1 = 3333
+PORT3 = 6666
 my_username = "Processo 1"
 
-sysOut = '0'
-# Create a socket
-# socket.AF_INET - address family, IPv4, some otehr possible are AF_INET6, AF_BLUETOOTH, AF_UNIX
-# socket.SOCK_STREAM - TCP, conection-based, socket.SOCK_DGRAM - UDP, connectionless, datagrams, socket.SOCK_RAW - raw IP packets
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sysOut = 0
+# Criando socket
+client_socket1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Connect to a given ip and port
-client_socket.connect((IP, PORT))
+client_socket1.connect((IP, PORT1))
+client_socket3.connect((IP, PORT3))
 
-# Set connection to non-blocking state, so .recv() call won;t block, just return some exception we'll handle
-client_socket.setblocking(False)
+client_socket1.setblocking(False)
+client_socket3.setblocking(False)
 
-# Prepare username and header and send them
-# We need to encode username to bytes, then count number of bytes and prepare header of fixed size, that we encode to bytes as well
 username = my_username.encode('utf-8')
 username_header = f"{len(username):<{HEADER_LENGTH}}".encode('utf-8')
-client_socket.send(username_header + username)
+client_socket1.send(username_header + username)
+client_socket3.send(username_header + username)
 
 while True:
-    setP = int(input(f'{my_username} > '))
+    setP = int(float(input(f'{my_username} > ')))
     set_point = setP
     
     if set_point:
-        PLUS = setP - int(sysOut)
+        PLUS = set_point - float(sysOut)
+        PLUS = abs(PLUS)
         process_erro = str(PLUS)
         message_header = f"{len(process_erro):<{HEADER_LENGTH}}".encode('utf-8')
          
-        client_socket.send(username_header + process_erro.encode('utf-8'))
-#        PLUS = int(setP) - int(sysOut)
-#        process_erro = str(PLUS)
-#        process_erro = process_erro.encode('utf-8')
-#        message_header = f"{len(process_erro):<{HEADER_LENGTH}}".encode('utf-8')
-#         
-#        client_socket.send(username_header + process_erro)
+        client_socket1.send(username_header + process_erro.encode('utf-8'))
 
     try:
-        # Now we want to loop over received messages (there might be more than one) and print them
+        #loop sobre as mesnagens recebidas
         while True:
 
-            # Receive our "header" containing username length, it's size is defined and constant
-            username_header = client_socket.recv(HEADER_LENGTH)
-            #retorno = client_socket.recv(HEADER_LENGTH).decode('utf-8')
+            # Recebe header
+            username_header = client_socket3.recv(HEADER_LENGTH)
 
-            # If we received no data, server gracefully closed a connection, for example using socket.close() or socket.shutdown(socket.SHUT_RDWR)
             if not len(username_header):
-                print('Connection closed by the server')
+                print('Conexao encerrada pelo server')
                 sys.exit()
 
-            # Convert header to int value
             username_length = int(username_header.decode('utf-8').strip())
 
-            # Receive and decode username
-            username = client_socket.recv(username_length).decode('utf-8')
+            # Recebendo e decodificando o username
+            username = client_socket3.recv(username_length).decode('utf-8')
 
-            # Now do the same for message (as we received username, we received whole message, there's no need to check if it has any length)
-            message_header = client_socket.recv(HEADER_LENGTH)
+            message_header = client_socket3.recv(HEADER_LENGTH)
             message_length = int(message_header.decode('utf-8').strip())
-            sysOut = client_socket.recv(message_length)
+            sysOut = client_socket3.recv(message_length)
+            sysOut = sysOut.decode('utf-8')
             
-
-            # Print message
             print(f'{username} > {sysOut}')
+            
+            # Plot
+            t = np.linspace(0,10,10)
+            tSys = np.linspace(float(sysOut),float(sysOut),10)
+            plt.plot(t,tSys)
+            plt.ylabel('Processo')
+            plt.legend(['SetPoint'],loc='best')
+            plt.xlabel('N')
+            plt.show()
 
     except IOError as e:
-        # This is normal on non blocking connections - when there are no incoming data error is going to be raised
-        # Some operating systems will indicate that using AGAIN, and some using WOULDBLOCK error code
-        # We are going to check for both - if one of them - that's expected, means no incoming data, continue as normal
-        # If we got different error code - something happened
+
         if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
-            print('Reading error: {}'.format(str(e)))
+            print('Erro de leitura: {}'.format(str(e)))
             sys.exit()
 
-        # We just did not receive anything
+        # Se nao recebermos nada
         continue
 
     except Exception as e:
-        # Any other exception - something happened, exit
-        print('Reading error: '.format(str(e)))
+        print('Erro de leitura: '.format(str(e)))
         sys.exit()
