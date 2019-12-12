@@ -51,7 +51,7 @@ while True:
         ganho = control.matlab.step(sys1)
         z1, z2 = ganho
         out2 = z1.max()
-        print('step1')
+       # print('step1')
         print(out2)
         if out2 > 0:    
             num_err0 =  float(out2)
@@ -82,7 +82,7 @@ while True:
         process_erro = c2.recv(message_length)
         process_erro = process_erro.decode('utf-8')
         
-        print(f'{username} > {process_erro}')
+       # print(f'{username} > {process_erro}')
         
     except IOError as e:
         if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
