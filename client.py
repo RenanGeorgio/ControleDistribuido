@@ -60,7 +60,7 @@ while True:
             sysOut = client_socket3.recv(message_length)
             sysOut = sysOut.decode('utf-8')
             
-            print(f'{username} > {sysOut}')
+           # print(f'{username} > {sysOut}')
             
             # Plot
             t = np.linspace(0,10,10)
