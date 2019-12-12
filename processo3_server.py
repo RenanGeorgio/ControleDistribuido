@@ -139,8 +139,8 @@ while True:
             out0 = control.matlab.step(sys1)
             x1, x2 = out0
             y1 = x1.max()
-            print('maximo')
-            print(y1)
+           # print('maximo')
+            #print(y1)
             
             if y1 > 0:
                 process_out = float(y1)
